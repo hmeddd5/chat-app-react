@@ -52,6 +52,15 @@ app.get("/rooms", (req, res) => {
     res.json(list);
 });
 
+function sendActivityLog(username, action, room) {
+    io.emit("activity_log", {
+        username,
+        action,
+        room,
+        time: now(),
+    });
+}
+
 // ─── Socket.io events ────────────────────────
 io.on("connection", (socket) => {
     console.log(`✅ Connecté : ${socket.id}`);
@@ -82,6 +91,7 @@ io.on("connection", (socket) => {
 
         io.to(room).emit("room_users", rooms[room].users);
         io.emit("rooms_list", getRoomsList());
+        sendActivityLog(username, "a rejoint", room);
     });
 
     // ── Créer une nouvelle room ─────────────
@@ -116,6 +126,28 @@ io.on("connection", (socket) => {
         });
         io.to(room).emit("room_users", rooms[room].users);
         io.emit("rooms_list", getRoomsList());
+    });
+    socket.on("leave_room", ({ username, room }) => {
+        socket.leave(room);
+
+        if (rooms[room]) {
+            rooms[room].users = rooms[room].users.filter(
+                (u) => u.socketId !== socket.id
+            );
+        }
+
+        io.to(room).emit("receive_message", {
+            author: "Système",
+            message: `${username} a quitté la salle `,
+            time: now(),
+            system: true,
+        });
+
+        io.to(room).emit("room_users", rooms[room] ? rooms[room].users : []);
+        io.emit("rooms_list", getRoomsList());
+        sendActivityLog(username, "a quitté", room);
+        socket.currentRoom = null;
+        socket.currentUsername = null;
     });
 });
 

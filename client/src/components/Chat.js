@@ -8,7 +8,7 @@ import { useSocket } from "../context/SocketContext";
 import Message from "./Message";
 import Sidebar from "./Sidebar";
 
-function Chat({ username, room }) {
+function Chat({ username, room, setConnected, setUsername, setRoom }) {
     // 🔹 Récupération du socket via le Context
     const socket = useSocket();
     // 🔹 État local : liste des messages et contenu du champ de saisie
@@ -80,6 +80,16 @@ function Chat({ username, room }) {
             sendMessage();
         }
     };
+    const leaveRoom = () => {
+        socket.emit("leave_room", { username, room });
+
+        setConnected(false);
+        setUsername("");
+        setRoom("");
+        setMessages([]);
+        setUsers([]);
+        setCurrentMessage("");
+    };
 
     return (
         <div className="chatWrapper">
@@ -104,6 +114,7 @@ function Chat({ username, room }) {
                         <span></span><span></span><span></span>
                     </button>
                     <div className="chatHeaderInfo">
+
                         <div className="chatHeaderAvatar">
                             {room.charAt(0).toUpperCase()}
                         </div>
@@ -111,6 +122,9 @@ function Chat({ username, room }) {
                             <h3>#{room}</h3>
                             <p>{users.length} participant{users.length > 1 ? "s" : ""}</p>
                         </div>
+                        <button className="leaveBtn" onClick={leaveRoom}>
+                            Quitter la salle
+                        </button>
                     </div>
                 </div>
 
@@ -140,6 +154,7 @@ function Chat({ username, room }) {
                         onKeyDown={handleKeyDown}
                         maxLength={500}
                     />
+
                     <button
                         className="sendBtn"
                         onClick={sendMessage}
@@ -154,6 +169,7 @@ function Chat({ username, room }) {
             </div>
         </div>
     );
+
 }
 
 export default Chat;

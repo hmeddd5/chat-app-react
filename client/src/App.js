@@ -29,7 +29,13 @@ function App() {
                     setConnected={setConnected}
                 />
             ) : (
-                <Chat username={username} room={room} />
+                <Chat
+                    username={username}
+                    room={room}
+                    setConnected={setConnected}
+                    setUsername={setUsername}
+                    setRoom={setRoom}
+                />
             )}
         </div>
     );
