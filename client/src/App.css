@@ -605,3 +605,9 @@ body {
     font-size: 13px;
     padding: 16px 0;
 }
+.readIndicator {
+    margin-left: 6px;
+    color: #4fc3f7;
+    font-size: 12px;
+    font-weight: bold;
+}
